@@ -1,33 +1,40 @@
 <template>
-    <v-main class="customer">
-        <h3 class="text-h3 font-weight-bold mb-5 judul">Customer</h3>
+    <v-main class="customer" v-if="load">
+        <h3 class="pt-5 grey--text text-right font-weight-bold mr-15">Customer</h3>
 
-        <div class="fullheight pa-6 px-15">
+        <div class="fullheight px-15">
             <v-card>
-                <v-card-title>
+                <v-card-title>                    
+                    <v-btn color="#003249" dark @click="dialog = true">
+                        Tambah Customer
+                    </v-btn>
+                    <v-spacer></v-spacer>
                     <v-text-field
                         v-model="search"
                         append-icon="mdi-magnify"
-                        label="Search"
+                        label="Cari"
                         single-line                        
                         hide-details>
-                    </v-text-field>
-
-                    <v-spacer></v-spacer>
-
-                    <v-btn color="#003249" dark @click="dialog = true">
-                        Tambah Customer
-                    </v-btn>                    
+                    </v-text-field>                  
                 </v-card-title>
 
-                <v-data-table :headers="headers" :items="filteredTable()" :search="search" :items-per-page="5">
+                <v-data-table :headers="headers" :items="customers" :search="search" :items-per-page="15">
                     <template v-slot:[`item.actions`]="{ item }">                        
-                        <v-btn color="pink" small class="mr-2" @click="editHandler(item)">
+                        <v-btn color="#679b9b" small class="mr-2" @click="editHandler(item)">
                             <v-icon color="white">mdi-pencil</v-icon>
                         </v-btn>                        
-                        <v-btn color="#679b9b" dark small @click="deleteHandler(item.id)">
+                        <v-btn color="pink" v-if="cekReservasi(item)" disabled small @click="deleteHandler(item.id)">
                             <v-icon color="white">mdi-delete</v-icon> 
                         </v-btn>
+                        <v-btn color="pink" v-else dark small @click="deleteHandler(item.id)">
+                            <v-icon color="white">mdi-delete</v-icon> 
+                        </v-btn>
+                    </template>
+                    <template v-slot:[`item.telp_customer`]="{ item }">
+                            {{ nullShow(item.telp_customer) }}
+                    </template>
+                    <template v-slot:[`item.email_customer`]="{ item }">
+                            {{ nullShow(item.email_customer) }}
                     </template>                                     
                 </v-data-table>            
             </v-card>
@@ -43,28 +50,31 @@
                         </v-btn>
                     </v-card-title>
                     <v-card-text>
-                        <v-container>                                                                               
-                            <v-text-field
-                                v-model="form.nama"
-                                label="Nama"
-                                outlined
-                                required
-                                prepend-icon="mdi-account">
-                            </v-text-field>                                            
+                        <v-container>
+                            <v-form ref="form">                                                                               
+                                <v-text-field
+                                    v-model="form.nama"
+                                    label="Nama"
+                                    outlined
+                                    :rules="namaRules"
+                                    required
+                                    prepend-icon="mdi-account">
+                                </v-text-field>                                            
 
-                            <v-text-field
-                                v-model="form.telp"                                
-                                label="No. Telepon"
-                                outlined                                                                                                
-                                prepend-icon="mdi-phone">
-                            </v-text-field>
+                                <v-text-field
+                                    v-model="form.telp"                                
+                                    label="No. Telepon"
+                                    outlined                                    
+                                    prepend-icon="mdi-phone">
+                                </v-text-field>
 
-                            <v-text-field
-                                v-model="form.email"                                
-                                label="Email"
-                                outlined                                                                                                
-                                prepend-icon="mdi-email">
-                            </v-text-field>                          
+                                <v-text-field
+                                    v-model="form.email"                                
+                                    label="Email"
+                                    outlined                                                                                                
+                                    prepend-icon="mdi-email">
+                                </v-text-field>
+                            </v-form>                          
                         </v-container>
                     </v-card-text>
                     <v-card-actions class="justify-center">                                            
@@ -127,14 +137,19 @@
                     { text: "Actions", value: "actions" },
                 ],
                 customer: new FormData,
-                customers: [],                
+                customers: [],  
+                reservasis: [],              
                 form: {
                     nama: null,
                     telp: null,                    
                     email: null,                    
                 },                
                 editId: '',
-                deleteId: '',                
+                deleteId: '',
+                namaRules: [
+                    (v) => !!v || 'Nama tidak boleh kosong',
+                    (v) => v.length <= 50 || 'Nama melebihi batas maksimal 50 karakter',
+                ],                 
             };
         },
 
@@ -147,7 +162,19 @@
                     }
                 }).then(response => {
                     console.log(response)                    
-                        this.customers = response.data.data
+                    this.customers = response.data.data
+                    this.load = true
+                })
+            },
+            readDataReservasi() {
+                var url = this.$api + '/reservasi'
+                this.$http.get(url, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                }).then(response => {
+                    console.log(response)                    
+                    this.reservasis = response.data.data                    
                 })
             },                  
             setForm() {
@@ -158,58 +185,64 @@
                 }
             },
             save() {
-                this.customer.append('nama_customer', this.form.nama);                
-                this.customer.append('telp_customer', this.form.telp);                
-                this.customer.append('email_customer', this.form.email);
+                if (this.$refs.form.validate()) {
+                    this.customer.append('nama_customer', this.form.nama);                
+                    this.customer.append('telp_customer', this.form.telp);                
+                    this.customer.append('email_customer', this.form.email);
 
-                var url = this.$api + '/customer'
-                this.load = true
-                this.$http.post(url, this.customer, {
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    }
-                }).then(response => {
-                    this.error_message = response.data.message;
-                    this.color="green"
-                    this.snackbar=true;
-                    this.load=false;
-                    this.close();
-                    this.readData();
-                    this.resetForm();
-                }).catch(error => {
-                    this.error_message=error.response.data.message;
-                    this.color="red"
-                    this.snackbar=true;
-                    this.load=false;
-                })
+                    var url = this.$api + '/customer'
+                    // this.load = true
+                    this.$http.post(url, this.customer, {
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    }).then(response => {
+                        this.error_message = response.data.message;
+                        this.color="green"
+                        this.snackbar=true;
+                        // this.load=false;
+                        this.resetForm();
+                        this.$refs.form.reset();
+                        this.close();
+                        this.readData();                                                
+                    }).catch(error => {
+                        this.error_message=error.response.data.message;
+                        this.color="red"
+                        this.snackbar=true;
+                        // this.load=false;
+                    })
+                }
             },
             update() {
-                let newData = {
-                    nama_customer: this.form.nama,                    
-                    telp_customer: this.form.telp,                    
-                    email_customer: this.form.email,                    
-                }
-                var url = this.$api + '/customer/' + this.editId;
-                this.load = true
-                this.$http.put(url, newData, {
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                if (this.$refs.form.validate()) {
+                    let newData = {
+                        nama_customer: this.form.nama,                    
+                        telp_customer: this.form.telp,                    
+                        email_customer: this.form.email,                    
                     }
-                }).then(response => {
-                    this.error_message = response.data.message;
-                    this.color="green"
-                    this.snackbar=true;
-                    this.load=false;
-                    this.close();
-                    this.readData();
-                    this.resetForm();
-                    this.inputType = 'Tambah';
-                }).catch(error => {
-                    this.error_message=error.response.data.message;
-                    this.color="red"
-                    this.snackbar=true;
-                    this.load=false;
-                })
+                    var url = this.$api + '/customer/' + this.editId;
+                    // this.load = true
+                    this.$http.put(url, newData, {
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    }).then(response => {
+                        this.error_message = response.data.message;
+                        this.color="green"
+                        this.snackbar=true;
+                        // this.load=false;
+                        this.$refs.form.reset();
+                        this.resetForm();
+                        this.close();
+                        this.readData();                    
+                        this.inputType = 'Tambah';
+                    }).catch(error => {
+                        this.error_message=error.response.data.message;
+                        this.color="red"
+                        this.snackbar=true;
+                        // this.load=false;
+                    })
+                }
             },            
             deleteData() {
                 var url = this.$api + '/customer_hapus/' + this.deleteId;
@@ -222,16 +255,17 @@
                     this.error_message = response.data.message;
                     this.color="green"
                     this.snackbar=true;
-                    this.load=false;                    
+                    // this.load=false;                    
                     this.close();
                     this.readData();
                     this.resetForm();
+                    this.$refs.form.reset();
                     this.inputType = 'Tambah';
                 }).catch(error => {
                     this.error_message=error.response.data.message;
                     this.color="red"
                     this.snackbar=true;                    
-                    this.load=false;
+                    // this.load=false;
                 })
             },            
             editHandler(item) {
@@ -252,7 +286,8 @@
                 this.inputType = 'Tambah';
             },
             cancel() {
-                this.resetForm();                
+                this.resetForm();
+                this.$refs.form.reset();                
                 this.dialog = false;            
                 this.inputType = 'Tambah';
             },
@@ -263,17 +298,32 @@
                     email: null,                    
                 };                                                                   
             },
-            filteredTable(){
-                return this.customers.filter(
-                    customer => customer.status_hapus === 0)
-            },                                                                                                       
+            nullShow(temp) {
+                if (temp === null) {
+                    return "-"
+                } else {
+                    return temp
+                }
+            },
+            cekReservasi(item) {
+                // var today = new Date();
+                var dtNow = new Date().toISOString().substr(0, 10);
+                // var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                for (let index = 0; index < this.reservasis.length; index++) {
+                    if (this.reservasis[index].id_customer == item.id && this.reservasis[index].tgl_reservasi >= dtNow){
+                        return true
+                    }                    
+                }
+                return false
+            }                                                                                                                 
         },        
         computed: {
             formTitle() {
                 return this.inputType
             },            
         },
-        mounted() {            
+        mounted() {
+            this.readDataReservasi();            
             this.readData();            
         },
     };
