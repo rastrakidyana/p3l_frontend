@@ -286,7 +286,7 @@
                 var dtNow = new Date().toISOString().substr(0, 10);
                 // var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
                 for (let index = 0; index < this.reservasis.length; index++) {
-                    if (this.reservasis[index].id_meja == item.id && this.reservasis[index].tgl_reservasi >= dtNow){
+                    if (this.reservasis[index].id_meja == item.id && this.reservasis[index].tgl_reservasi >= dtNow && this.reservasis[index].status_transaksi == 'Belum Bayar'){
                         return true
                     }                    
                 }

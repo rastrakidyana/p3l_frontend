@@ -20,7 +20,7 @@
                                       
                 </v-card-title>
 
-                <v-data-table :headers="headers" :items="menus" :search="search" :items-per-page="5">
+                <v-data-table :headers="headers" :items="menus" :search="search" :items-per-page="10">
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-btn color="#ff9a76" small class="mr-2" @click="detailHandler(item)">
                             <v-icon color="white">mdi-view-list</v-icon> 
@@ -36,7 +36,8 @@
                             {{ item.stok_menu }} {{ item.unit_menu }}
                     </template>
                     <template v-slot:[`item.harga_menu`]="{ item }">
-                            Rp {{ item.harga_menu }}
+                            <span v-if="item.harga_menu != 0">Rp {{ item.harga_menu }}</span>
+                            <span v-else>Gratis</span>
                     </template>
                     <template v-slot:[`item.tipe_menu`]="{ item }">
                         <v-chip
@@ -459,7 +460,7 @@
                 this.form.img = item.gambar_menu,
                 this.gambarShow = item.gambar_menu,
                 this.form.deskripsi = item.deskripsi_menu,
-                this.suffixChange(item.id_bahan),  
+                this.form.satuan = item.unit_bahan,
                 this.dialog = true;
             },            
             deleteHandler(id) {

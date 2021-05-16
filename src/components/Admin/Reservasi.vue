@@ -30,25 +30,26 @@
                         <v-btn color="#679b9b" small v-else disabled class="mr-2" @click="editHandler(item)">
                             <v-icon color="white">mdi-pencil</v-icon> 
                         </v-btn>
-                        <!-- <v-btn color="success" small class="mr-2" @click="qrHandler(item.id)">
+                        <v-btn color="primary" small v-if="cekQr(item)" class="mr-2" @click="qrHandler(item.id)">
                             <v-icon color="white">mdi-qrcode</v-icon> 
-                        </v-btn>                         -->
-                        <v-btn color="pink" small @click="deleteHandler(item.id)">
+                        </v-btn>
+                        <v-btn color="primary" small v-else disabled class="mr-2" @click="qrHandler(item.id)">
+                            <v-icon color="white">mdi-qrcode</v-icon> 
+                        </v-btn>                        
+                        <v-btn color="pink" v-if="cekDel(item)" small @click="deleteHandler(item.id)">
+                            <v-icon color="white">mdi-delete</v-icon> 
+                        </v-btn>
+                        <v-btn color="pink" v-else disabled small @click="deleteHandler(item.id)">
                             <v-icon color="white">mdi-delete</v-icon> 
                         </v-btn>
                     </template>
-                    <!-- <template v-slot:[`item.tgl_reservasi`]="{ item }">
+                    <template v-slot:[`item.id_transaksi`]="{ item }">
                         <v-chip
                             dark
-                            v-if="getColorReservasi(item.tgl_reservasi) === '#289672'"
-                            :color="getColorReservasi(item.tgl_reservasi)">
-                            {{ item.tgl_reservasi }}
+                            :color="getColorStatus(item)">
+                            {{ getStatus(item) }}                         
                         </v-chip>
-                        <v-chip
-                            v-else>
-                            {{ item.tgl_reservasi }}
-                        </v-chip>
-                    </template>                                     -->
+                    </template>                    
                 </v-data-table>            
             </v-card>
         </div>
@@ -230,31 +231,14 @@
                                 <v-list-item-subtitle>No. Meja : {{ form.meja }}</v-list-item-subtitle>
                                 <v-list-item-subtitle>Tanggal Reservasi : {{ form.tgl }}</v-list-item-subtitle>                            
                                 <v-list-item-subtitle>Jam Kunjungan : {{ form.kunjungan }}</v-list-item-subtitle>
-                                <v-list-item-subtitle>Nota Transaksi : {{ form.nota }}</v-list-item-subtitle>
+                                <v-list-item-subtitle v-if="form.nota != null">No. Transaksi : {{ form.nota }}</v-list-item-subtitle>
                                 <v-list-item-subtitle>Karyawan : {{ form.karyawan }}</v-list-item-subtitle>                                                                
                             </v-list-item-content>
                             </v-list-item>
                         </v-form>                                           
                     </v-card-text>                    
                 </v-card>
-            </v-dialog>
-
-            <v-dialog v-model="dialogQR" persistent max-width="500px">
-                <v-card
-                    class="mx-auto"                                                       
-                    max-width="500">
-                    <v-card-title>                    
-                    <span class="title font-weight-bold">QR Code</span>
-                    <v-spacer></v-spacer>                            
-                            <v-btn color="#810000" text @click="dialogQR = false">
-                                <v-icon x-large>mdi-close-circle</v-icon>
-                            </v-btn>    
-                    </v-card-title>                     
-                    <v-card-text>
-                        {{ qrCode }}                                    
-                    </v-card-text>                    
-                </v-card>
-            </v-dialog>
+            </v-dialog>            
 
             <v-snackbar v-model="snackbar" :color="color" timeout="2000" bottom>
                 {{error_message}}
@@ -278,8 +262,7 @@
                 dialog: false,
                 dialogDelete: false,
                 dialogDetail: false,
-                dialogMeja: false,
-                dialogQR: false,
+                dialogMeja: false,                
                 headers: [
                     {
                         text: "Customer",
@@ -290,6 +273,7 @@
                     { text: "No. Meja", value: "no_meja" },
                     { text: "Tanggal Reservasi", value: "tgl_reservasi" },
                     { text: "Jam Kunjungan", value: "jadwal_kunjungan" },
+                    { text: "Status", value: "id_transaksi"},
                     { text: "Actions", value: "actions" },
                 ],
                 reservasi: new FormData,
@@ -297,6 +281,7 @@
                 customerOptions: [],
                 mejaOptions: [],                
                 userNow: [],
+                kustomer: [],
                 hasils: [],
                 form: {
                     customer: null,
@@ -336,12 +321,13 @@
                 })
             },
             readDataQR() {
-                var url = this.$api + '/reservasi_qrcode/' + this.deleteId;
+                var url = this.$api + '/reservasi_pdf/' + this.deleteId;
                 this.$http.get(url, {
                     headers: {
                         'Authorization': 'Bearer ' + localStorage.getItem('token')
                     }
                 })
+                this.saveTransaksi();
             },
             readDataUser() {
                 var url = this.$api + '/karyawan/' + localStorage.getItem('id');
@@ -363,6 +349,17 @@
                     }
                 }).then(response => {                    
                     this.customerOptions = response.data.data                    
+                })
+            },
+            readOneCustomer(id) {
+                var url = this.$api + '/customer/' + id;
+                this.$http.get(url, {
+                     headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                }).then(response => {                    
+                    this.kustomer = response.data.data                    
+                    this.form.customer = this.kustomer
                 })
             },
             readDataOptionMejas() {
@@ -387,6 +384,25 @@
                 this.form.meja = no.id;
                 this.form.mejaSelected = no.no_meja;
                 // this.setForm();
+            },
+            saveTransaksi() {
+                var url = this.$api + '/transaksi_store/' + this.deleteId;
+                this.$http.get(url,  {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                }).then(response => {
+                    this.error_message = response.data.message;
+                    this.color="green"
+                    this.snackbar=true;
+                    this.readData();
+                    // this.load=false;                    
+                }).catch(error => {
+                    this.error_message=error.response.data.message;
+                    this.color="red"
+                    this.snackbar=true;
+                    // this.load=false;                
+                })
             },
             save() {
                 this.reservasi.append('id_customer', this.form.customer);
@@ -476,15 +492,16 @@
                 this.form.customer = item.nama_customer,
                 this.form.meja = item.no_meja,
                 this.form.karyawan = item.nama_karyawan,
-                // this.form.nota = this.showNota(item.id_transaksi),
+                this.form.nota = item.no_transaksi,
                 this.form.tgl = item.tgl_reservasi,
                 this.form.kunjungan = item.jadwal_kunjungan,  
                 this.dialogDetail = true;
             },
             editHandler(item) {
                 this.inputType = 'Ubah';
+                this.readOneCustomer(item.id_customer),
                 this.editId = item.id;                                
-                this.form.customer = item.id_customer,
+                // this.form.customer = this.kustomer,
                 this.form.meja = item.id_meja,                
                 this.form.tgl = item.tgl_reservasi,
                 this.form.kunjungan = item.jadwal_kunjungan,
@@ -498,19 +515,17 @@
             },
             qrHandler(id) {
                 this.deleteId = id;                
-                this.dialogQR = true;
                 this.readDataQR();
             },
             close() {
                 this.dialog = false;
                 this.dialogMeja = false;
-                this.dialogDelete = false;
-                this.dialogQR = false;
+                this.dialogDelete = false;                
                 this.inputType = 'Tambah';                
             },
             cancel() {
                 this.resetForm();
-                this.$refs.form.reset();                                
+                this.$refs.form.reset();             
                 this.dialog = false;
                 this.dialogMeja = false;
                 this.dialogDetail = false;                
@@ -547,7 +562,8 @@
                 var object = 0;
                 this.hasils = [];
                 for (let index = 0; index < this.reservasis.length; index++) {
-                    if (this.reservasis[index].tgl_reservasi === this.form.tgl && this.reservasis[index].jadwal_kunjungan === this.form.kunjungan){
+                    if (this.reservasis[index].tgl_reservasi === this.form.tgl && this.reservasis[index].jadwal_kunjungan === this.form.kunjungan
+                        && this.reservasis[index].status_transaksi == 'Belum Bayar'){
                           this.hasils[object] = this.reservasis[index];
                           object++;
                     }                    
@@ -561,7 +577,8 @@
                 this.hasils = [];
                 for (let index = 0; index < this.reservasis.length; index++) {
                     if (this.reservasis[index].tgl_reservasi === this.form.tgl && this.reservasis[index].jadwal_kunjungan === this.form.kunjungan
-                        && this.reservasis[index].id_meja != this.form.meja){
+                        && this.reservasis[index].id_meja != this.form.meja 
+                        && (this.reservasis[index].id_transaksi === null || this.reservasis[index].status_transaksi === 'Belum Bayar')){
                           this.hasils[object] = this.reservasis[index];
                           object++;
                     }                    
@@ -596,23 +613,69 @@
                     return true;
                 }
             },
+            cekQr(item) {
+                var dtNow = new Date().toISOString().substr(0, 10);
+                if (dtNow == item.tgl_reservasi && item.status_transaksi != 'Sudah Bayar') {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            cekDel(item) {                
+                if (item.id_transaksi == null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
             pilihanKunjungan(tgl){                  
                 var dtNow = new Date().toISOString().substr(0, 10);              
                 var today = new Date();
                 var time = today.getHours()-1 + ":" + today.getMinutes() + ":" + today.getSeconds();
+                console.log(time);
                 if (tgl == dtNow) {
                     if (time >= '10:00:00' && time <= '16:00:00') {
                         return this.kunjungan = ['Lunch', 'Dinner'];
-                    } else if (time >= '0:00:00' && time <= '9:59:59') {
-                        return this.kunjungan = ['Lunch', 'Dinner'];
                     } else if (time >= '16:00:01' && time <= '21:00:00') {
                         return this.kunjungan = ['Dinner'];
-                    } else
+                    // } else if (time >= '0:00:00' && time <= '9:59:59') {
+                    //     return this.kunjungan = ['Lunch', 'Dinner'];       //UBAHHHH             
+                    // } else
+                    //     return this.kunjungan = []; 
+                    } else if (time >= '21:00:01' && time <= '23:59:59') {//UBAHHHH             
                         return this.kunjungan = []; 
+                    } else
+                        return this.kunjungan = ['Lunch', 'Dinner'];
                 } else {
                     return this.kunjungan = ['Lunch', 'Dinner'];
                 }                                   
-            },                                                                                                                   
+            },
+            getColorStatus(status) {
+                var dtNow = new Date().toISOString().substr(0, 10);  
+                if (status.id_transaksi == null) {
+                    if (dtNow <= status.tgl_reservasi) {
+                        return 'warning'                                    
+                    }
+                    return 'error'                                
+                } else {
+                    if (status.status_transaksi === 'Belum Bayar') {
+                        return 'purple'
+                    } else return  'success'
+                } 
+            },
+            getStatus(status){
+                var dtNow = new Date().toISOString().substr(0, 10);  
+                if (status.id_transaksi == null){
+                    if (dtNow <= status.tgl_reservasi) {
+                        return 'Menunggu'
+                    }
+                    return 'Tidak hadir'                                
+                }else { 
+                    if (status.status_transaksi === 'Belum Bayar') {
+                        return 'Sedang memesan'
+                    } else return  'Selesai'
+                }
+            }                                                                                                                   
         },
         watch: {
             menu(val){

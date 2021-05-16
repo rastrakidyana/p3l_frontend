@@ -56,7 +56,7 @@
                         v-for="(menu, index) in menus"
                         :key="index">
                         <v-list-item-title>
-                            <v-btn v-if="menu.title==='Keluar'" text router @click.prevent="logout">
+                            <v-btn v-if="menu.title==='Logout'" text router @click.prevent="logout">
                                 {{ menu.title }}
                             </v-btn>
                             <v-btn v-else @click="dialog = true">
@@ -154,6 +154,7 @@
                     { title: "Histori Bahan", icon: "mdi-calendar-multiple-check", to: "/histori_bahan_masuk" },
                     { title: "Pesanan", icon: "mdi-cart", to: "/pesanan" },
                     { title: "Transaksi", icon: "mdi-receipt", to: "/transaksi" },
+                    { title: "Kartu Customer", icon: "mdi-credit-card", to: "/kartu" },
                 ],
                 itemsOwner: [
                     { title: "Dashboard", icon: "mdi-view-dashboard", to: "/dashboard" },                                     
@@ -164,6 +165,7 @@
                     { title: "Customer", icon: "mdi-account-multiple", to: "/customer" },                                        
                     { title: "Reservasi", icon: "mdi-calendar-multiple", to: "/reservasi" },                                        
                     { title: "Transaksi", icon: "mdi-receipt", to: "/transaksi" },
+                    { title: "Kartu Customer", icon: "mdi-credit-card", to: "/kartu" },
                 ],
                 itemsWaiter: [
                     { title: "Dashboard", icon: "mdi-view-dashboard", to: "/dashboard" },                                                         

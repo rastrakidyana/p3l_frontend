@@ -212,11 +212,13 @@
                     { title: "Histori Bahan", icon: "mdi-calendar-multiple-check", color:"green", to: "/histori_bahan_masuk" },
                     { title: "Pesanan", icon: "mdi-cart", color:"yellow", to: "/pesanan" },
                     { title: "Transaksi", icon: "mdi-receipt", color:"primary", to: "/transaksi" },
+                    { title: "Kartu Customer", icon: "mdi-credit-card", color:"red", to: "/kartu" },
                 ],
                 componentsKasir: [                                        
                     { title: "Customer", icon: "mdi-account-multiple", color:"primary", to: "/customer" },                                        
                     { title: "Reservasi", icon: "mdi-calendar-multiple", color:"red", to: "/reservasi" },                    
                     { title: "Transaksi", icon: "mdi-receipt", color:"green", to: "/transaksi" },
+                    { title: "Kartu Customer", icon: "mdi-credit-card", color:"yellow", to: "/kartu" },
                 ],
                 componentsWaiter: [                                       
                     { title: "Customer", icon: "mdi-account-multiple", color:"primary", to: "/customer" },                                        
@@ -334,7 +336,8 @@
                 var object = 0;
                 this.hasils = [];
                 for (let index = 0; index < this.reservasis.length; index++) {
-                    if (this.reservasis[index].tgl_reservasi === this.form.tgl && this.reservasis[index].jadwal_kunjungan === this.form.kunjungan){
+                    if (this.reservasis[index].tgl_reservasi === this.form.tgl && this.reservasis[index].jadwal_kunjungan === this.form.kunjungan 
+                        && (this.reservasis[index].id_transaksi === null || this.reservasis[index].status_transaksi === 'Belum Bayar')){
                           this.hasils[object] = this.reservasis[index];
                           object++;
                     }                    
@@ -362,10 +365,10 @@
                 // }
                 if (time >= '10:00:00' && time <= '16:00:00') {
                     return this.form.kunjungan = 'Lunch'
-                } else if (time >= '0:00:00' && time <= '9:59:59') {
-                    return this.form.kunjungan = 'Lunch'
                 } else if (time >= '16:00:01' && time <= '23:59:59') {
                     return this.form.kunjungan = 'Dinner'
+                } else if (time >= '0:00:00' && time <= '9:59:59') {
+                    return this.form.kunjungan = 'Lunch'
                 }
             },
             setDate(date){

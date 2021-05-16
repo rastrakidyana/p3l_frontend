@@ -148,7 +148,7 @@
                 deleteId: '',
                 namaRules: [
                     (v) => !!v || 'Nama tidak boleh kosong',
-                    (v) => v.length <= 50 || 'Nama melebihi batas maksimal 50 karakter',
+                    // (v) => v.length <= 50 || 'Nama melebihi batas maksimal 50 karakter',
                 ],                 
             };
         },
@@ -310,7 +310,7 @@
                 var dtNow = new Date().toISOString().substr(0, 10);
                 // var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
                 for (let index = 0; index < this.reservasis.length; index++) {
-                    if (this.reservasis[index].id_customer == item.id && this.reservasis[index].tgl_reservasi >= dtNow){
+                    if (this.reservasis[index].id_customer == item.id && this.reservasis[index].tgl_reservasi >= dtNow && this.reservasis[index].status_transaksi == 'Belum Bayar'){
                         return true
                     }                    
                 }

@@ -122,6 +122,45 @@ const router = new VueRouter ({
                         }
                     },
                 } ,
+                {
+                    path : "/transaksi",
+                    name : "Transaksi",
+                    meta: {title:'Atma Korean BBQ | Transaksi'},
+                    component : importComponent ( 'Admin/Transaksi' ) ,
+                    beforeEnter:(to, from, next)=>{
+                        if(localStorage.getItem('id_jabatan') == 2 || localStorage.getItem('id_jabatan') == 3){
+                            next();
+                        }else{                            
+                            next({ name: 'Dashboard'});
+                        }
+                    },
+                } ,
+                {
+                    path : "/pesanan",
+                    name : "Pesanan",
+                    meta: {title:'Atma Korean BBQ | Pesanan'},
+                    component : importComponent ( 'Admin/Pesanan' ) ,
+                    beforeEnter:(to, from, next)=>{
+                        if(localStorage.getItem('id_jabatan') == 2 || localStorage.getItem('id_jabatan') == 4  || localStorage.getItem('id_jabatan') == 5){
+                            next();
+                        }else{                            
+                            next({ name: 'Dashboard'});
+                        }
+                    },
+                } ,
+                {
+                    path : "/kartu",
+                    name : "Kartu",
+                    meta: {title:'Atma Korean BBQ | Kartu Customer'},
+                    component : importComponent ( 'Admin/Kartu' ) ,
+                    beforeEnter:(to, from, next)=>{
+                        if(localStorage.getItem('id_jabatan') == 2 || localStorage.getItem('id_jabatan') == 3){
+                            next();
+                        }else{                            
+                            next({ name: 'Dashboard'});
+                        }
+                    },
+                } ,
                 ]
             },        
             {
