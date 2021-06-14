@@ -6,6 +6,7 @@ import vuetify from '@/plugins/vuetify'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+// import jsPDF from 'jspdf'
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
@@ -18,6 +19,6 @@ Vue.prototype.$api = 'https://atmakoreanbbq.online/public/api';
 
 new Vue({
   vuetify,
-  router,
+  router,  
   render: h => h(App),
 }).$mount('#app')

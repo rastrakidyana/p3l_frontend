@@ -615,8 +615,14 @@
             },
             cekQr(item) {
                 var dtNow = new Date().toISOString().substr(0, 10);
+                var time = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false})                
                 if (dtNow == item.tgl_reservasi && item.status_transaksi != 'Sudah Bayar') {
-                    return true;
+                    if (time >= '10:00:00' && time <= '16:00:00' && item.jadwal_kunjungan == 'Lunch') {
+                        return true
+                    } else if (time >= '16:00:01' && time <= '21:00:00' && item.jadwal_kunjungan == 'Dinner') {
+                        return true
+                    } else
+                        return false;
                 } else {
                     return false;
                 }
@@ -629,19 +635,14 @@
                 }
             },
             pilihanKunjungan(tgl){                  
-                var dtNow = new Date().toISOString().substr(0, 10);              
-                var today = new Date();
-                var time = today.getHours()-1 + ":" + today.getMinutes() + ":" + today.getSeconds();
-                console.log(time);
+                var dtNow = new Date().toISOString().substr(0, 10);                              
+                var time = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false})                 
+                console.log(time);                
                 if (tgl == dtNow) {
                     if (time >= '10:00:00' && time <= '16:00:00') {
                         return this.kunjungan = ['Lunch', 'Dinner'];
                     } else if (time >= '16:00:01' && time <= '21:00:00') {
-                        return this.kunjungan = ['Dinner'];
-                    // } else if (time >= '0:00:00' && time <= '9:59:59') {
-                    //     return this.kunjungan = ['Lunch', 'Dinner'];       //UBAHHHH             
-                    // } else
-                    //     return this.kunjungan = []; 
+                        return this.kunjungan = ['Dinner'];                  
                     } else if (time >= '21:00:01' && time <= '23:59:59') {//UBAHHHH             
                         return this.kunjungan = []; 
                     } else
@@ -651,12 +652,20 @@
                 }                                   
             },
             getColorStatus(status) {
-                var dtNow = new Date().toISOString().substr(0, 10);  
+                var dtNow = new Date().toISOString().substr(0, 10);
+                var time = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false})  
                 if (status.id_transaksi == null) {
-                    if (dtNow <= status.tgl_reservasi) {
-                        return 'warning'                                    
-                    }
-                    return 'error'                                
+                    if (dtNow == status.tgl_reservasi) {
+                        if (time >= '00:00:01' && time <= '16:00:00' && status.jadwal_kunjungan == 'Lunch') {
+                            return 'warning'    
+                        } else if (time >= '00:00:01' && time <= '21:00:00' && status.jadwal_kunjungan == 'Dinner') {
+                            return 'warning'
+                        } else
+                            return 'error'    
+                    } else if (dtNow < status.tgl_reservasi) {
+                        return 'warning'
+                    } else
+                        return 'error'                                 
                 } else {
                     if (status.status_transaksi === 'Belum Bayar') {
                         return 'purple'
@@ -665,11 +674,19 @@
             },
             getStatus(status){
                 var dtNow = new Date().toISOString().substr(0, 10);  
+                var time = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false})  
                 if (status.id_transaksi == null){
-                    if (dtNow <= status.tgl_reservasi) {
+                    if (dtNow == status.tgl_reservasi) {
+                        if (time >= '00:00:01' && time <= '16:00:00' && status.jadwal_kunjungan == 'Lunch') {
+                            return 'Menunggu'    
+                        } else if (time >= '00:00:01' && time <= '21:00:00' && status.jadwal_kunjungan == 'Dinner') {
+                            return 'Menunggu'
+                        } else
+                            return 'Tidak Hadir'    
+                    } else if (dtNow < status.tgl_reservasi) {
                         return 'Menunggu'
-                    }
-                    return 'Tidak hadir'                                
+                    } else
+                        return 'Tidak Hadir'                                                 
                 }else { 
                     if (status.status_transaksi === 'Belum Bayar') {
                         return 'Sedang memesan'

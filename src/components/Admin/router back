@@ -92,3 +92,41 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router ;
+
+ <v-text-field
+                                        class="centered-input"
+                                        v-model="form.thn2"
+                                        label="Tahun"                                            
+                                        readonly
+                                        outlined                                       
+                                        append-icon="mdi-plus"
+                                        prepend-inner-icon="mdi-minus"
+                                        @click:append="form.thn2 = increment(form.thn2)"
+                                        @click:prepend-inner="form.thn2 = decrement(form.thn2)"
+                                    ></v-text-field>
+
+pilihanKunjungan(tgl){                  
+                var dtNow = new Date().toISOString().substr(0, 10);              
+                var today = new Date();
+                var jani = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false})
+                var time = today.getHours()-1 + ":" + today.getMinutes() + ":" + today.getSeconds();
+                var time2 = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                console.log(time2);
+                console.log(jani);
+                if (tgl == dtNow) {
+                    if (time >= '10:00:00' && time <= '16:00:00') {
+                        return this.kunjungan = ['Lunch', 'Dinner'];
+                    } else if (time >= '16:00:01' && time <= '21:00:00') {
+                        return this.kunjungan = ['Dinner'];
+                    // } else if (time >= '0:00:00' && time <= '9:59:59') {
+                    //     return this.kunjungan = ['Lunch', 'Dinner'];       //UBAHHHH             
+                    // } else
+                    //     return this.kunjungan = []; 
+                    } else if (time >= '21:00:01' && time <= '23:59:59') {//UBAHHHH             
+                        return this.kunjungan = []; 
+                    } else
+                        return this.kunjungan = ['Lunch', 'Dinner'];
+                } else {
+                    return this.kunjungan = ['Lunch', 'Dinner'];
+                }                                   
+            },

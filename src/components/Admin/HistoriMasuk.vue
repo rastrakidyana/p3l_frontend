@@ -49,10 +49,7 @@
 
         <div class="fullheight px-15">
             <v-card>
-                <v-card-title>                                       
-                    <v-btn color="#003249" dark @click="dialog = true, keluar = true">
-                        Tambah Bahan Keluar
-                    </v-btn>
+                <v-card-title>                                                           
                     <v-spacer></v-spacer>
                     <v-text-field
                         v-model="search2"
@@ -82,8 +79,7 @@
             <v-dialog v-model="dialog" persistent max-width="600px">
                 <v-card>
                     <v-card-title>
-                        <span class="headline font-weight-bold" v-if="keluar != true">{{ formTitle }} Bahan Masuk</span>
-                        <span class="headline font-weight-bold" v-else>{{ formTitle }} Bahan Keluar</span>
+                        <span class="headline font-weight-bold">{{ formTitle }} Bahan Masuk</span>                        
                         <v-spacer></v-spacer>
                         <v-btn color="#810000" text @click="cancel">
                             <v-icon x-large>mdi-close-circle</v-icon>
@@ -117,8 +113,7 @@
                                     prepend-icon="mdi-cart-plus">
                                 </v-text-field>
 
-                                <v-text-field
-                                    v-if="keluar != true"
+                                <v-text-field                                    
                                     v-model="form.harga"
                                     label="Harga"
                                     outlined
@@ -129,8 +124,7 @@
                                     prepend-icon="mdi-cash">
                                 </v-text-field>                                                                                                           
 
-                                <v-menu
-                                    v-if="formTitle == 'Tambah'"
+                                <v-menu                                    
                                     ref="menu"
                                     v-model="menu"
                                     :close-on-content-click="false"                                                                
@@ -154,35 +148,7 @@
                                             :max="new Date().toISOString().substr(0, 10)"
                                             @change="setDate">
                                         </v-date-picker>
-                                </v-menu>
-
-                                <v-menu
-                                    v-else
-                                    ref="menu"
-                                    v-model="menu"
-                                    :close-on-content-click="false"                                                                
-                                    min-width="100px">
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-text-field
-                                                v-model="form.tgl"
-                                                label="Tanggal"
-                                                prepend-icon="mdi-calendar-text"                                            
-                                                disabled
-                                                outlined
-                                                v-bind="attrs"
-                                                v-on="on"
-                                                :rules="tglRules"
-                                            ></v-text-field>
-                                        </template>
-                                        <v-date-picker
-                                            ref="picker"
-                                            v-model="form.tgl"                                                                                
-                                            :min="new Date().toISOString().substr(0, 10)"
-                                            :max="new Date().toISOString().substr(0, 10)"                                    
-                                            disabled
-                                            @change="setDate">
-                                        </v-date-picker>
-                                </v-menu>                                                                                  
+                                </v-menu>                                                                                                               
                             </v-form>
                         </v-container>
                     </v-card-text>
@@ -230,8 +196,7 @@
                 snackbar: false,
                 error_message: '',
                 color: '',
-                menu: false,
-                keluar: false,                               
+                menu: false,                                               
                 search: null,
                 search2: null,
                 dialog: false,
@@ -336,11 +301,7 @@
             },             
             setForm() {
                 if (this.inputType === 'Tambah') {
-                    if (this.keluar != true) {
-                        this.save()   
-                    } else {
-                        this.saveKeluar()
-                    }                    
+                    this.save()                                       
                 } else {
                     this.update()
                 }
@@ -374,36 +335,7 @@
                         // this.load=false;
                     })
                 }
-            },
-            saveKeluar() {
-                if (this.$refs.form.validate()) {
-                    this.masuk.append('id_bahan', this.form.bahan);
-                    this.masuk.append('jml_keluar', this.form.jml);                                    
-                    this.masuk.append('tgl_keluar', this.form.tgl);
-                    var url = this.$api + '/histori_keluar'
-                    // this.load = true
-                    this.$http.post(url, this.masuk, {
-                        headers: {
-                            'Authorization': 'Bearer ' + localStorage.getItem('token')
-                        }
-                    }).then(response => {
-                        this.error_message = response.data.message;
-                        this.color="green"
-                        this.snackbar=true;
-                        // this.load=false;
-                        this.close();
-                        this.readData();
-                        this.readDataKeluars();
-                        this.resetForm();
-                        this.$refs.form.reset();
-                    }).catch(error => {
-                        this.error_message=error.response.data.message;
-                        this.color="red"
-                        this.snackbar=true;
-                        // this.load=false;
-                    })
-                }
-            },
+            },            
             update() {
                 if (this.$refs.form.validate()) {
                     let newData = {
@@ -478,15 +410,13 @@
             },
             close() {
                 this.dialog = false;
-                this.dialogDelete = false;
-                this.keluar = false;
+                this.dialogDelete = false;                
                 this.inputType = 'Tambah';
             },
             cancel() {
                 this.resetForm();
                 this.$refs.form.reset();                
-                this.dialog = false;
-                this.keluar = false;                
+                this.dialog = false;                          
                 this.inputType = 'Tambah';
             },
             resetForm() {
@@ -507,8 +437,9 @@
             setDate(date){
                 this.$refs.menu.save(date)
             },
-            cekHistori(item) {                
-                if (item.status_hapus == 0) {
+            cekHistori(item) {    
+                var now = new Date().toISOString().substr(0, 10)             
+                if (item.status_hapus == 0 && item.tgl_masuk == now) {
                     return true;
                 } else {
                     return false;

@@ -213,8 +213,8 @@
                                 <v-icon x-large>mdi-close-circle</v-icon>
                             </v-btn>   
                     </v-card-title>                     
-                    <v-card-text class="font-weight-medium">
-                        <v-form ref="form"> 
+                    <v-card-text class="font-weight-medium">                        
+                            <v-form ref="form"> 
                             <v-list-item>
                             <v-list-item-content class="text-left">
                                 <v-list-item-subtitle>No. Transaksi : {{ form.nomor }}</v-list-item-subtitle>                            
@@ -234,7 +234,7 @@
                                 <v-list-item-subtitle v-if="form.metode != 'Cash' && form.metode != null">Tanggal Kadaluarsa Kartu : {{ form.tgl }}</v-list-item-subtitle>
                             </v-list-item-content>
                             </v-list-item>
-                        </v-form>                                           
+                        </v-form>                                                                                        
                     </v-card-text>
                     <v-card-title>                    
                         <span class="title font-weight-bold">List Pesanan</span>                      
@@ -249,7 +249,224 @@
                         </template>                            
                     </v-data-table>                       
                 </v-card>
-            </v-dialog>            
+            </v-dialog>
+
+            <v-dialog v-model="dialogPrint" persistent max-width="700px">
+                <v-card
+                    class="mx-auto"                                                       
+                    max-width="700">
+                    <v-card-title>                                        
+                    <v-spacer></v-spacer>
+                            <v-btn color="#810000" text @click="cancel">
+                                <v-icon x-large>mdi-close-circle</v-icon>
+                            </v-btn>   
+                    </v-card-title>
+                    <div id="print" ref='receipt'>                                            
+                    <v-img
+                        class="mx-auto"
+                        max-height="300"
+                        max-width="400" 
+                        :src="header"                                                    
+                    ></v-img>
+                    <span class="font-weight-bold">------------------------------------------------------------------------------------</span>
+                    <v-row class="ml-6">
+                        <v-col></v-col>
+                        <v-col>
+                            <h6 class="text-left font-weight-bold">
+                                Receipt #
+                            </h6>                            
+                        </v-col>
+                        <v-col md="3">
+                            <h6 class="mb-0 text-left">
+                                {{ form.nomor }}
+                            </h6>
+                        </v-col>                        
+                        <v-col >
+                            <h6 class="text-left font-weight-bold">
+                                Date
+                            </h6>                            
+                        </v-col>
+                        <v-col md="3">
+                            <h6 class="mb-0 text-left">
+                                {{ form.tgl_reservasi }}
+                            </h6>                            
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                    <v-row class="ml-6">
+                        <v-col></v-col>
+                        <v-col>                            
+                            <h6 class="text-left font-weight-bold">
+                                Waiter
+                            </h6>
+                        </v-col>
+                        <v-col md="3">                            
+                            <h6 class="mb-0 text-left">
+                                {{ form.karyawan }}
+                            </h6>
+                        </v-col>                        
+                        <v-col >                            
+                            <h6 class="text-left font-weight-bold">
+                                Time
+                            </h6>
+                        </v-col>
+                        <v-col md="3">                        
+                            <h6 class="mb-0 text-left">
+                                {{ form.time }}
+                            </h6>
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                    <span class="font-weight-bold">------------------------------------------------------------------------------------</span>
+                    <v-row class="ml-6">
+                        <v-col></v-col>
+                        <v-col class="ml-6">                            
+                            <h6 class="text-left font-weight-bold">
+                                Table #
+                            </h6>
+                        </v-col>
+                        <v-col md="3" class="ml-4">                            
+                            <h6 class="mb-0 text-left">
+                                {{ form.meja }}
+                            </h6>
+                        </v-col>                        
+                        <v-col >                            
+                            <h6 class="text-left font-weight-bold">
+                                Customer
+                            </h6>
+                        </v-col>
+                        <v-col md="3">                        
+                            <h6 class="mb-0 text-left">
+                                {{ form.customer }}
+                            </h6>
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                    <span >=================================================</span>
+                    <v-row class="mt-2">
+                        <v-col></v-col>                        
+                        <div>
+                            <thead>
+                                <tr>
+                                    <th class="text-center font-weight-medium" style="width: 120px" >
+                                        Qty
+                                    </th>
+                                    <th class="text-center font-weight-medium" style="width: 120px" >
+                                        Item Menu
+                                    </th>
+                                    <th class="text-center font-weight-medium" style="width: 120px" >
+                                        Harga
+                                    </th>
+                                    <th class="text-Center font-weight-medium" style="width: 120px" >
+                                        Subtotal
+                                    </th>
+                                </tr>
+                            </thead>
+                            <span>____________________________________________________</span>
+                            <tbody>
+                                <tr
+                                v-for="item in pesanans" :key="item.nama_menu">
+                                    <td style="width: 120px">{{ item.jml_pesanan}}</td>
+                                    <td style="width: 120px">{{ item.nama_menu }}</td>
+                                    <td style="width: 120px" >Rp {{ item.total_pesanan / item.jml_pesanan }}</td>
+                                    <td style="width: 120px" >Rp {{ item.total_pesanan }}</td>
+                                </tr>
+                            </tbody>
+                        </div>
+                        <v-col></v-col>                    
+                    </v-row>
+                    <br>
+                    <span class="font-weight-bold">------------------------------------------------------------------------------------</span>
+                    <v-row>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col sm="2">
+                            <h6 class="text-left">
+                                Subtotal
+                            </h6>
+                            <h6 class="text-left">
+                                Service 5%
+                            </h6>
+                            <h6 class="text-left">
+                                Tax 10%
+                            </h6>
+                        </v-col>
+                        <v-col sm="2" class="mr-3">
+                            <h6 class=" text-left">
+                                Rp {{form.subtotal}}
+                            </h6>
+                            <h6 class=" text-left">
+                                Rp {{form.service}}
+                            </h6>
+                            <h6 class=" text-left">
+                                Rp {{form.tax}}
+                            </h6>
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                    <span class="font-weight-bold">------------------------------------------------------------------------------------</span>
+                    <v-row>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col sm="2">
+                            <h6 class="text-left font-weight-bold">
+                                Total
+                            </h6>                            
+                        </v-col>
+                        <v-col sm="2" class="mr-3">
+                            <h6 class=" text-left font-weight-bold">
+                                Rp {{form.total}}
+                            </h6>                            
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                    <span >=================================================</span>
+                    <v-row>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col>                                                       
+                        </v-col>
+                        <v-col sm="2" class="mr-3">
+                            <h6 class="text-left" style="font-size: 12px;">
+                                Total Qty : {{ form.qty }}
+                            </h6>
+                            <h6 class=" text-left" style="font-size: 12px;">
+                                Total Item : {{ form.item }}
+                            </h6>                            
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                     <v-row class="mt-1">
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col></v-col>
+                        <v-col>                                                       
+                        </v-col>
+                        <v-col sm="3" class="mr-6">
+                            <h6 class="text-right mr-4"  style="font-size: 12px;">
+                                Printed {{form.tgl_reservasi}} {{form.time}} 
+                            </h6>
+                            <h6 class=" text-right mr-4" style="font-size: 12px;">
+                                Cashier: {{ userNow.nama_karyawan }}
+                            </h6>                            
+                        </v-col>
+                        <v-col></v-col>
+                    </v-row>
+                    <span>------------------------------------------------------------------------------------</span>
+                    <h5 class="font-weight-bold mt-1">
+                        THANK YOU FOR VISIT
+                    </h5>
+                    <span>------------------------------------------------------------------------------------</span>
+                    </div>
+                </v-card>
+            </v-dialog>              
 
             <v-snackbar v-model="snackbar" :color="color" timeout="2000" bottom>
                 {{error_message}}
@@ -259,10 +476,12 @@
 
 
 <script>
+    import html2PDF from 'jspdf-html2canvas'
     export default {
         name: "transaksi",
         data() {
             return {
+                header: require('@/assets/header_laporannew.png'),
                 inputType: 'Tambah',
                 load: false,
                 // tambahkan: false,
@@ -273,7 +492,8 @@
                 search: null,
                 dialog: false,                
                 dialogDetail: false,
-                dialogKartu: false,                
+                dialogKartu: false, 
+                dialogPrint: false,               
                 headers: [
                     {
                         text: "No. Transaksi",
@@ -320,6 +540,9 @@
                     subtotal: null,
                     service: null,
                     tax: null,
+                    time: null,
+                    qty: null,
+                    item: null,
                 },
                 jumlah: 0,                          
                 metode: ['Cash', 'Credit Card', 'Debit Card'],                           
@@ -372,7 +595,12 @@
                         'Authorization': 'Bearer ' + localStorage.getItem('token')
                     }
                 }).then(response => {                    
-                    this.pesanans = response.data.data                                                             
+                    this.pesanans = response.data.data
+                    this.form.item = this.pesanans.length
+                    this.form.qty = 0
+                    for (let index = 0; index < this.pesanans.length; index++) {
+                        this.form.qty = this.form.qty + Number(this.pesanans[index].jml_pesanan) 
+                    }                                        
                 })
             },
             readDataSubTotalPesanan(id) {
@@ -403,7 +631,7 @@
             },                                                            
             setForm() {
                 if (this.inputType === 'Ubah') {                                             
-                    this.update()
+                    this.update()                                        
                 } 
             },
             simpanKartu() {
@@ -465,9 +693,10 @@
                     // this.load=false;
                     this.close();
                     this.readData();
-                    this.resetForm();
-                    this.$refs.form.reset();
-                    this.inputType = 'Tambah';
+                    this.dialogPrint = true                    
+                    // this.resetForm();
+                    // this.$refs.form.reset();
+                    // this.inputType = 'Tambah';
                 }).catch(error => {
                     this.error_message=error.response.data.message;
                     this.color="red"
@@ -493,27 +722,32 @@
                 this.pesanans = [],
                 this.readDataPesanans(item.id),
                 this.readDataSubTotalPesanan(item.id),
-                this.dialogDetail = true;
+                this.dialogDetail = true;                                
             },
             editHandler(item) {
                 this.inputType = 'Ubah';
                 this.editId = item.id;                        
                 this.form.nomor = item.no_transaksi;
-                this.form.total = item.total_transaksi;               
+                this.form.total = item.total_transaksi;
+                this.form.karyawan = item.nama_karyawan,               
                 this.form.customer = item.nama_customer;
                 this.form.tgl_reservasi = item.tgl_reservasi;
-                this.form.meja = item.no_meja;
+                this.form.meja = item.no_meja;                    
+                var time = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false}) 
+                this.form.time = time;
                 this.pesanans = [];
                 this.readDataPesanans(item.id);                
                 this.readDataSubTotalPesanan(item.id);                                              
                 this.dialog = true;            
             },           
             close() {
-                this.dialog = false;
-                this.dialogMeja = false;                
+                this.dialog = false;                
                 this.inputType = 'Tambah';                
             },
-            cancel() {                
+            cancel() {   
+                if (this.dialogPrint == true) {
+                    this.printStruk();                                
+                }                
                 this.$refs.form.reset();
                 if (this.dialog == true) {
                     this.$refs.formDetail.reset();                                
@@ -522,8 +756,9 @@
                 this.readData();
                 this.dialog = false;    
                 this.dialogKartu = false;            
-                this.dialogDetail = false;                
-                this.inputType = 'Tambah';
+                this.dialogDetail = false; 
+                this.dialogPrint = false;               
+                this.inputType = 'Tambah';                
             },            
             resetForm() {
                 this.form = {
@@ -542,7 +777,10 @@
                     nama_kartu: null,
                     subtotal: null,
                     service: null,
-                    tax: null,                  
+                    tax: null,
+                    time: null,
+                    qty: null,
+                    item: null,                  
                 };
                 this.cekKartu = null;                                               
             },                                               
@@ -571,7 +809,17 @@
             getColor(status) {
                 if (status == 'Belum Bayar') return '#d44000'                                
                 else return  '#289672'
-            },                                                                                                                                      
+            },
+            printStruk(){
+                let print = document.getElementById("print");
+                html2PDF(print, {
+                    jsPDF: { format: "a4", },
+                    html2canvas: { 
+                    scrollX : 0, 
+                    scrollY : 0 },
+                    output : 'Receipt.pdf'
+                });
+            }                                                                                                                                      
         },
         watch: {
             menu(val){
@@ -585,7 +833,7 @@
         },
         mounted() {            
             this.readData();
-            this.readDataOptionKartus();
+            // this.readDataOptionKartus();
             this.readDataUser();                      
         },
     };

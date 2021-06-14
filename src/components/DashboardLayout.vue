@@ -155,10 +155,12 @@
                     { title: "Pesanan", icon: "mdi-cart", to: "/pesanan" },
                     { title: "Transaksi", icon: "mdi-receipt", to: "/transaksi" },
                     { title: "Kartu Customer", icon: "mdi-credit-card", to: "/kartu" },
+                    { title: "Laporan", icon: "mdi-file-document", to: "/laporan" },
                 ],
                 itemsOwner: [
                     { title: "Dashboard", icon: "mdi-view-dashboard", to: "/dashboard" },                                     
-                    { title: "Karyawan", icon: "mdi-account-key", to: "/karyawan" },                                        
+                    { title: "Karyawan", icon: "mdi-account-key", to: "/karyawan" },
+                    { title: "Laporan", icon: "mdi-file-document", to: "/laporan" },                                        
                 ],
                 itemsKasir: [
                     { title: "Dashboard", icon: "mdi-view-dashboard", to: "/dashboard" },                                                                             

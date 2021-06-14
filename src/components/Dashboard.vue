@@ -200,7 +200,8 @@
                 search: null,                
                 searchMeja: null,
                 componentsOwner: [                    
-                    { title: "Karyawan", icon: "mdi-account-key", color:"primary", to: "/karyawan" },                    
+                    { title: "Karyawan", icon: "mdi-account-key", color:"primary", to: "/karyawan" },
+                    { title: "Laporan", icon: "mdi-file-document", color:"red", to: "/laporan" },                    
                 ],
                 componentsManager: [                    
                     { title: "Karyawan", icon: "mdi-account-key", color:"primary", to: "/karyawan" },                    
@@ -213,6 +214,7 @@
                     { title: "Pesanan", icon: "mdi-cart", color:"yellow", to: "/pesanan" },
                     { title: "Transaksi", icon: "mdi-receipt", color:"primary", to: "/transaksi" },
                     { title: "Kartu Customer", icon: "mdi-credit-card", color:"red", to: "/kartu" },
+                    { title: "Laporan", icon: "mdi-file-document", color:"green", to: "/laporan" },
                 ],
                 componentsKasir: [                                        
                     { title: "Customer", icon: "mdi-account-multiple", color:"primary", to: "/customer" },                                        
@@ -354,9 +356,9 @@
                 return '#289672' 
             },
             awalKunjungan() {
-                var today = new Date();
-                // var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-                var time = today.getHours()-1 + ":" + today.getMinutes() + ":" + today.getSeconds();
+                // var today = new Date();                
+                // var time = today.getHours()-1 + ":" + today.getMinutes() + ":" + today.getSeconds();
+                var time = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Jakarta", hour12: false})                 
                 console.log(time);
                 // if (time >= '11:00:00' && time <= '16:00:00') {
                 //     return this.form.kunjungan = 'Lunch'
@@ -367,7 +369,7 @@
                     return this.form.kunjungan = 'Lunch'
                 } else if (time >= '16:00:01' && time <= '23:59:59') {
                     return this.form.kunjungan = 'Dinner'
-                } else if (time >= '0:00:00' && time <= '9:59:59') {
+                } else if (time >= '00:00:00' && time <= '09:59:59') {
                     return this.form.kunjungan = 'Lunch'
                 }
             },

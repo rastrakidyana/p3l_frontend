@@ -161,6 +161,19 @@ const router = new VueRouter ({
                         }
                     },
                 } ,
+                {
+                    path : "/laporan",
+                    name : "Laporan",
+                    meta: {title:'Atma Korean BBQ | Laporan'},
+                    component : importComponent ( 'Admin/Laporan' ) ,
+                    beforeEnter:(to, from, next)=>{
+                        if(localStorage.getItem('id_jabatan') == 2 || localStorage.getItem('id_jabatan') == 1){
+                            next();
+                        }else{                            
+                            next({ name: 'Dashboard'});
+                        }
+                    },
+                } ,
                 ]
             },        
             {
